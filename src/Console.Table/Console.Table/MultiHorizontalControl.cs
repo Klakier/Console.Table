@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Console.Table
 {
     public class MultiHorizontalControl : IConsoleControl
     {
-        private class Item
+        protected class Item
         {
             public IConsoleControl Control { get; set; }
             public int WidthPercent { get; set; }
@@ -15,53 +16,91 @@ namespace Console.Table
             public int Height { get; set; }
         }
 
-        private readonly List<Item> _items = new List<Item>();
-
-        public void AddControl(IConsoleControl control, int widthPercent)
+        public MultiHorizontalControl()
         {
-            _items.Add(new Item
+            Items = new List<Item>();
+        }
+
+        protected List<Item> Items { get; set; }
+
+        public virtual void AddResizableControl(IConsoleControl control, int widthPercent)
+        {
+            Items.Add(CreateResizableItem(control, widthPercent));
+        }
+
+        protected static Item CreateResizableItem(IConsoleControl control, int widthPercent)
+        {
+            return new Item
             {
                 Control = control,
                 WidthPercent = widthPercent
-            });
+            };
+        }
+
+        public virtual void AddFixedSizeControl(IConsoleControl control, int width)
+        {
+            Items.Add(CreateFixedSizeItem(control, width));
+        }
+
+        protected static Item CreateFixedSizeItem(IConsoleControl control, int width)
+        {
+            return new Item
+            {
+                Control = control,
+                Width = width,
+                WidthPercent = 0,
+                Height = 0
+            };
         }
 
         public int CalculateHeight(int width)
         {
-            if (_items.Count == 0)
+            if (Items.Count == 0)
             {
                 return 0;
             }
 
-            return _items.Max(s => s.Height);
+            return Items.Max(s => s.Height);
         }
 
-        public void Adjust(int width)
+        public virtual void Adjust(int width)
         {
-            if (_items.Count != 0)
+            if (Items.Count == 0)
             {
                 return;
             }
 
-            var totalWidth = _items.Sum(s => s.WidthPercent);
-            var unit = totalWidth / (double)width;
 
-            foreach (var item in _items)
+            var resizable = Items.Where(i => i.WidthPercent != 0).ToArray();
+            var fixedSize = Items.Where(i => i.WidthPercent == 0).ToArray();
+
+            var fixedSizeWidth = fixedSize.Sum(s => s.Width);
+
+            var resizableItemsPercents = resizable.Sum(s => s.WidthPercent);
+            var resizableItemsSpace = ( width - fixedSizeWidth);
+            var unit = ((double)resizableItemsSpace) / resizableItemsPercents;
+
+            foreach (var item in resizable)
             {
-                item.Height = item.Control.CalculateHeight(width);
                 item.Width = (int)Math.Round(item.WidthPercent * unit, 0);
             }
 
-            var totalSumAfterAdjust = _items.Sum(s => s.Width);
+            var totalSumAfterAdjust = resizable.Sum(s => s.Width);
 
-            _items.Last().Width += totalWidth - totalSumAfterAdjust;
+            resizable.Last().Width += resizableItemsSpace - totalSumAfterAdjust;
+
+            foreach (var item in Items)
+            {
+                item.Control.Adjust(item.Width);
+                item.Height = item.Control.CalculateHeight(item.Width);
+            }
         }
 
         public void Draw(TextWriter writer, int width, int line)
         {
-            foreach (var item in _items)
+            foreach (var item in Items)
             {
-                item.Control.Draw(writer, item.Width, line);
+                    item.Control.Draw(writer, item.Width, line);
             }
         }
     }

@@ -24,24 +24,25 @@ namespace Console.Table
 
         public void Draw(TextWriter writer, int width, int line)
         {
-            throw new NotImplementedException();
+            var textToDrawn = GetTextToDraw(width, line);
+
+            var stringFormat = "{0," + width + "}";
+            writer.Write(stringFormat, textToDrawn);
         }
 
-        public void GetDrawer(TextWriter textWriter, int width, int line)
+        private string GetTextToDraw(int width, int line)
         {
-            var start = width*line;
+            var start = width * line;
             var end = start + width;
 
             if (start >= _text.Length)
             {
-                return;
+                return string.Empty;
             }
 
             end = Math.Min(_text.Length, end);
 
-            var textToDrawn = _text.Substring(start, end - start);
-
-            textWriter.Write(textToDrawn);
+            return _text.Substring(start, end - start);
         }
     }
 }

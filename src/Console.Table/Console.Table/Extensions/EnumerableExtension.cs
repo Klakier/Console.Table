@@ -12,5 +12,23 @@ namespace Console.Table.Extensions
                 action(element);
             }
         }
+
+        public static IEnumerable<T> Separte<T>(this IEnumerable<T> collection, Func<T> separtor)
+        {
+            var enumerator = collection.GetEnumerator();
+            if (!enumerator.MoveNext())
+            {
+                yield break;
+            }
+
+            yield return enumerator.Current;
+
+            while (enumerator.MoveNext())
+            {
+                yield return separtor();
+                yield return enumerator.Current;
+            }
+
+        }
     }
 }

@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A706227F-3472-430D-9126-A4A7EE9F15A1}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{BCCA0CDC-C7F7-43E7-AA44-454510E6F30E}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Console.Table</RootNamespace>
-    <AssemblyName>Console.Table</AssemblyName>
+    <RootNamespace>TestApplicaiton</RootNamespace>
+    <AssemblyName>TestApplicaiton</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,24 +34,24 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ColumnSepartor.cs" />
-    <Compile Include="ConsoleWriter.cs" />
-    <Compile Include="Drawer.cs" />
-    <Compile Include="Extensions\EnumerableExtension.cs" />
-    <Compile Include="IConsoleControl.cs" />
-    <Compile Include="IDrawer.cs" />
-    <Compile Include="MultiHorizontalControl.cs" />
-    <Compile Include="MultiVerticalControl.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Table.cs" />
-    <Compile Include="TableBottomLine.cs" />
-    <Compile Include="TableMiddleLine.cs" />
-    <Compile Include="TableRow.cs" />
-    <Compile Include="TableTopLine.cs" />
-    <Compile Include="TextControl.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Console.Table\Console.Table\Console.Table.csproj">
+      <Project>{A706227F-3472-430D-9126-A4A7EE9F15A1}</Project>
+      <Name>Console.Table</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,7 +6,7 @@ namespace Console.Table
 {
     public class MultiVerticalControl : IConsoleControl
     {
-        private class Item
+        protected class Item
         {
             public IConsoleControl Control { get; set; }
             public int BeginLine { get; set; }
@@ -14,49 +14,57 @@ namespace Console.Table
             public int EndLine { get; set; }
         }
 
-        private readonly List<Item> _items;
+    ;
+
+        public MultiVerticalControl()
+            : this(Enumerable.Empty<IConsoleControl>())
+        {
+        }
 
         public MultiVerticalControl(IEnumerable<IConsoleControl> items)
         {
-            _items = items.Select(CreateItem).ToList();
+            Items = items.Select(CreateItem).ToList();
         }
+
+        protected List<Item> Items { get; set; }
 
         public void AddWidget(IConsoleControl consoleControl)
         {
-            _items.Add(CreateItem(consoleControl));
+            Items.Add(CreateItem(consoleControl));
         }
 
-        public void Adjust(int width)
+        public virtual void Adjust(int width)
         {
             var currentLine = 0;
-            foreach (var item in _items)
+            foreach (var item in Items)
             {
+                item.Control.Adjust(width);
                 var height = item.Control.CalculateHeight(width);
                 item.BeginLine = currentLine;
                 item.TotalLines = height;
-                item.EndLine = currentLine + height + 1;
+                item.EndLine = currentLine + height;
 
-                currentLine += item.EndLine;
+                currentLine = item.EndLine;
             }
         }
 
         public void Draw(TextWriter writer, int width, int line)
         {
-            var elementToDraw = _items.FirstOrDefault(i => i.BeginLine <= line && line < i.EndLine);
+            var elementToDraw = Items.FirstOrDefault(i => i.BeginLine <= line && line < i.EndLine);
             if (elementToDraw == null)
             {
                 return;
             }
 
-            elementToDraw.Control.Draw(writer, width, line);
+            elementToDraw.Control.Draw(writer, width, line - elementToDraw.BeginLine);
         }
 
         public int CalculateHeight(int width)
         {
-            return _items.Sum(s => s.TotalLines);
+            return Items.Sum(s => s.TotalLines);
         }
 
-        private static Item CreateItem(IConsoleControl consoleControl)
+        protected static Item CreateItem(IConsoleControl consoleControl)
         {
             return new Item
             {
